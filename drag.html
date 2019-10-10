@@ -90,9 +90,11 @@
         const mouseUp = Rx.Observable.fromEvent(document, 'mouseup')
         const mouseMove = Rx.Observable.fromEvent(document, 'mousemove')
 
-        mouseDown.filter(e => video.classList.contains('video-fixed'))
+        mouseDown
+            .filter(e => video.classList.contains('video-fixed'))
             .map(e => mouseMove.takeUntil(mouseUp))
             .concatAll()
+            .throttleTime(13) // 节流，避免move太快了导致渲染吃力
             .withLatestFrom(mouseDown, (move, down) => {
                 return {
                     x: validValue(move.clientX - down.offsetX, window.innerWidth - 320, 0),

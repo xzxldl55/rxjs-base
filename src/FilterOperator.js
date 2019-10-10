@@ -55,4 +55,16 @@ let oaDebounceTime = Observable.interval(200).take(3).delay(400).startWith('xzxl
 // oaDebounceTime.subscribe(console.log)
 
 // 9.throttle：防抖有了，节流也要。使用方式跟防抖是一样的。但是运行原则上，节流是在某个时间段内只处理一次数据
-let oaThrottle
+/**
+ * O1: --0--1--2--3--4--5--6--7--8--9--10...
+ * O2: ----------0----------1...
+ * throttle: --0--------「即在前面这1000ms内，O1吐出了0～4，但只处理一次，就是第一次」--5...
+ */
+let oaThrottle = Observable.interval(200).throttle(() => Observable.interval(1000))
+// oaThrottle.subscribe(console.log)
+
+// 10.throttleTime：一样哋
+let oaThrottleTime = Observable.interval(200).throttleTime(1000)
+// oaThrottleTime.subscribe(console.log)
+
+// 11.
