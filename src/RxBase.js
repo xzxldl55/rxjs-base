@@ -29,3 +29,9 @@ var observer1 = {
 }
 o1.subscribe(observer1)
 o1.subscribe((value) => console.log(value))
+
+// Subscription: 其实在Observe订阅Observable之后将会返回一个subscription，其又一个unsubscribe方法，可以取消订阅
+var subscription1 = Rx.interval(1000).subscribe(v => console.log('sub -> ', v))
+setTimeout(() => {
+    subscription1.unsubscribe() // 退订
+}, 5000)

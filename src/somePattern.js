@@ -16,12 +16,12 @@ class Product {
         this.listeners.forEach(listener => listener(message))
     }
 }
-let Pro1 = new Product()
-Pro1.addListener((message) => console.log(message))
-Pro1.addListener((message) => console.log(message + 'w'))
-Pro1.addListener((message) => console.log(message + 'z'))
+// let Pro1 = new Product()
+// Pro1.addListener((message) => console.log(message))
+// Pro1.addListener((message) => console.log(message + 'w'))
+// Pro1.addListener((message) => console.log(message + 'z'))
 
-Pro1.notify('xzxldl')
+// Pro1.notify('xzxldl')
 
 // Iterator Pattern --> Consumer消费者索取信息
 class IteratorFromArr {
@@ -39,12 +39,12 @@ class IteratorFromArr {
     }
 }
 
-let testIterator = (new IteratorFromArr([0, 1, 2, 3])).map(v => v * v)
-console.log(testIterator.next())
-console.log(testIterator.next())
-console.log(testIterator.next())
-console.log(testIterator.next())
-console.log(testIterator.next())
+// let testIterator = (new IteratorFromArr([0, 1, 2, 3])).map(v => v * v)
+// console.log(testIterator.next())
+// console.log(testIterator.next())
+// console.log(testIterator.next())
+// console.log(testIterator.next())
+// console.log(testIterator.next())
 
 // Lazy Evaluation --> 同消费者索取信息
 function* getNumbers (words) {
@@ -54,14 +54,19 @@ function* getNumbers (words) {
         }
     }
 }
-const iterator = getNumbers('你就是个250，你4不4傻？')
-console.log(iterator.next())
-console.log(iterator.next())
-console.log(iterator.next())
-console.log(iterator.next())
-console.log(iterator.next())
-console.log(iterator.next())
+// const iterator = getNumbers('你就是个250，你4不4傻？')
+// console.log(iterator.next())
+// console.log(iterator.next())
+// console.log(iterator.next())
+// console.log(iterator.next())
+// console.log(iterator.next())
+// console.log(iterator.next())
 
 /**
  * Obervable即为此二种方式的结合，其具备生产者推送特性的同时，能够产生消息序列，对其使用map，filter等方法修饰
  */
+
+module.exports = {
+    Product,
+    IteratorFromArr
+}
