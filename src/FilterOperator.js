@@ -67,4 +67,28 @@ let oaThrottle = Observable.interval(200).throttle(() => Observable.interval(100
 let oaThrottleTime = Observable.interval(200).throttleTime(1000)
 // oaThrottleTime.subscribe(console.log)
 
-// 11.
+// 11.distinct：顾名思义，就是过滤掉相同的值，可选择接收一个callback对传入的值进行有选择的比较，比如我们传入的数据是一个Json对象，所以即使他的值相同，但由于默认比较的是地址，所以无法被排除，此时则可使用callback来定义比较的值是对象中的某一个属性
+/**
+ * 如：
+ * Observable.from([{v: 'a'}, {v: 'b'}, {v: 'a'}]).zip(Observable.interval(300), (x, y) => x).distinct(x => x.v)
+ * ✨：需要注意的是，实际上distinct会在背地里建立一个Set（该Set为RxJs自己写的，不是Es6的），当接收到元素是会先去判断Set内是否存在相同的值，如果有则不吐出
+ *     ，如果没有则存到Set并吐出。所以尽量不要讲distinct运用在一个无限的Observable中，防止Set越来越大，可改用distinctUntilChanged或接收第二个参数flushes
+ * flushes为一个Observable，可以规定distinct在多久时间间隔后清楚之前存储的Distinct数据，如：
+ *      Observable.from(['a', 'b', 'a', 'c', 'b']).zip(Observable.interval(300), (x, y) => x).distinct(null, Observable.interval(1300))
+ * O: ---a---b---a---c---b|
+ * flushes: -------------clear...
+ * distinctSet: ---[a]=a---[a,b]=b---[a,b,a]=null---[a,b,c]=c-「clear Set」--[b]=b|
+ */
+let oaDistinct = Observable.from(['a', 'b', 'a', 'c', 'b']).zip(Observable.interval(300), (x, y) => x).distinct()
+// oaDistinct.subscribe(console.log)
+
+// 12.distinctUntilChanged：仅跟最后一次送出的元素进行比较，不会每个都比（所以也不用担心上面那家伙Set过大的问题）
+/**
+ * O1: ---a---b---c---c---b|
+ * set: ---null---a---b---c---c|
+ * ret: ---a!=null=>a---b!=a=>b---c!=b=>c---c===c=>null---b!=c=>b|
+ */
+let oaDistinctUntilChanged = Observable.from(['a', 'b', 'c', 'c', 'b']).zip(Observable.interval(300), (x, y) => x).distinctUntilChanged()
+// oaDistinctUntilChanged.subscribe(console.log)
+
+// 

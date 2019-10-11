@@ -7,12 +7,14 @@ let oaInterval = Observable.interval(1000).take(4)
 let oaOf = Observable.of(1, 2, 3)
 let oaFrom = Observable.from(['xzx', 'ldl', 'zyq'])
 
-// 1.concatAll：有的情况下Observable送出的元素还是一个Observable，此时就像一个二维数组，concatAll即类似Array.concat将其摊平
+// 1.concatAll：有的情况下Observable送出的元素还是一个Observable（高阶Observable-Higher Order Observable），此时就像一个二维数组，concatAll即类似Array.concat将其摊平
 //          注：concatAll会先处理先出现的observable，只有等到这个observable处理完毕后才会处理下一个observable，所以如果二维数组内的
 //             obervable为异步的，再经过其处理后会变得整体像是同步的 --> 即可认作其组合方式为直接首尾相连接
+/**
+ * ----(123)----(123)----...
+ */
 let oaConcatAll = Observable.interval(1000).map(v => Observable.of(1, 2, 3)).concatAll()
 // oaConcatAll.subscribe(console.log)
-/* ----(123)----(123)----....... */
 
 // 2.concat：将多个observable合并成一个。
 //          ⚠️注意：concat合并原则与concatAll一样，都是收尾合并，所以在下面的栗子中，先是看到'concat --> '被打印，接着便是---0---1---...即oaInterval的内容，而后面的oaOf与oaFrom需要等待oaInterval的1000各数字输出完才会开始
@@ -77,4 +79,34 @@ let oaZip = oaInterval.zip(Observable.interval(500).take(3), (x, y) => x + y)
 let oaWithLatestFrom = Observable.interval(1500).withLatestFrom(oaInterval, (x, y) => y === 1 ? x+'xx' : x)
 // oaWithLatestFrom.subscribe(console.log)
 
-// 8.
+// 8.switch：处理高阶Observable（即二维Observable），不同于concatAll的首尾衔接，switch会在新的Observable来临的时候将上一个Observable退订（不管是否完成了）直接处理新的
+/**
+ * click: -----c---c-----c---...
+ * map:   -----o---o-----o---...
+ * switch:-------0-「来了个新的」--0--1-「来了个新的」--0--1--2--3...
+ */
+// let oaSwitch = Observable.fromEvent(document, 'click').map(e => Observable.interval(200)).switch()
+
+// 9.mergeAll：跟merge原则一样，同时处理多个Observable按照吐出时间顺序来合并。同时mergeAll可以出传入一个数值代表了它能够同时处理的Observable数量，它会等前面的n个Observable处理完了再开始处理后面的
+/**
+ * O1: -----o-----o-----o...
+ * map1: --------0---1---2|
+ * map2: -------------0---1---2|
+ * ...
+ * res: --------0---1--0-2--1...
+ *
+ * 所以：mergeAll(1) ==> concatAll()
+ */
+let oaMergeAll = Observable.interval(500).map(e => Observable.interval(300).take(3)).mergeAll()
+// oaMergeAll.subscribe(console.log)
+
+/**
+ * 🆚VS： mergeAll & concatAll & switch
+ * 1⃣️mergeAll：同时处理多个Observable，按照它们吐出顺序合并
+ * 2⃣️concatAll：一次只能处理一个Observable，只有等到前面那个处理完才能处理后面的，就像收银员
+ * 3⃣️switch：每次只处理新的Observable，旧的丢掉，渣男类型
+ */
+
+// 10.concatMap：实际上就是map + concatAll，接收一个callback
+let oaConcatMap = Observable.interval(500).concatMap(e => Observable.interval(200).take(3))
+oaConcatMap.subscribe(console.log)
