@@ -107,6 +107,26 @@ let oaMergeAll = Observable.interval(500).map(e => Observable.interval(300).take
  * 3⃣️switch：每次只处理新的Observable，旧的丢掉，渣男类型
  */
 
-// 10.concatMap：实际上就是map + concatAll，接收一个callback
+// 10.concatMap：实际上就是map + concatAll，两个参数：第一个callback为map，第二个callback接收四个参数分别为：外部Observable送出元素，内部Observable(即map出来的)送出元素，外部Observable送出元素index，内部index
 let oaConcatMap = Observable.interval(500).concatMap(e => Observable.interval(200).take(3))
-oaConcatMap.subscribe(console.log)
+// oaConcatMap.subscribe(console.log)
+
+// 11.switchMap：即switch + map
+/**
+ * 这个其实也能拿来做防抖：快速发出很多个请求的时候，我们只处理最新的那个（上面那个concatMap就是一个一个排队处理，也能够防止因为HTTP返回时间不同造成的问题）
+ * 接收第二个参数，resultSelect，参数跟concatMap的一样，可以再次筛选结果集
+ */
+let oaSwitchMap = Observable.interval(500).switchMap(v => Observable.interval(200).take(3))
+// oaSwitchMap.subscribe(console.log)
+
+// 12.mergeMap：map + mergeAll, 第二个参数跟concatMap一样。但其还有第三个参数，能够限制并行处理的数量
+let oaMergeMap = Observable.interval(500).mergeMap(v => Observable.interval(200).take(4))
+// oaMergeMap.subscribe(console.log)
+
+/**
+ * Tips：concatMap，mergeMap，switchMap有一个共同点，就是能够将第一个参数回传的Promise（如果是Promise的话）直接自动转换成Observable（省去了Observable.from(Promise)）
+ *      在使用上：
+ *      ❤️concatMap：适合用在确定了外部的Observable吐出速度不会比内部的Observable发送时间快（即不会发生重叠），不希望有任何并行处理行为，比如一次一次完成的UI动画，或者是websocket那样的心跳包
+ *      ❤️mergeMap：所以咯，适合并行IO处理
+ *      ❤️switchMap：只处理最后一次行为，不知道用什么就用这个
+ */

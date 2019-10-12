@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Document</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/5.0.1/Rx.js"></script>
+	<style>
+		* {
+			padding: 0;
+			margin: 0;
+		}
+
+		html,
+		body {
+			height: 100%;
+			background-color: white;
+			padding: 0;
+			margin: 0;
+		}
+
+		.autocomplete {
+			position: relative;
+			display: inline-block;
+			margin: 20px;
+		}
+
+		.input {
+			width: 200px;
+			border: none;
+			border-bottom: 1px solid black;
+			padding: 0;
+			line-height: 24px;
+			font-size: 16px;
+		}
+
+		.input:focus {
+			outline: none;
+			border-bottom-color: blueviolet;
+		}
+
+		.suggest {
+			width: 200px;
+			list-style: none;
+			padding: 0;
+			margin: 0;
+			-webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+		}
+
+		.suggest li {
+			cursor: pointer;
+			padding: 5px;
+		}
+
+		.suggest li:hover {
+			background-color: lightblue;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="autocomplete">
+		<input class="input" type="search" id="search" autocomplete="off">
+		<ul id="suggest-list" class="suggest">
+		</ul>
+	</div>
+	<script>
+		const url = 'https://zh.wikipedia.org/w/api.php?action=opensearch&format=json&limit=5&origin=*';
+		const getSuggestList = (keyword) => fetch(url + '&search=' + keyword, {
+				method: 'GET',
+				mode: 'cors'
+			})
+			.then(res => res.json())
+
+		const searchInput = document.getElementById('search')
+		const suggestList = document.getElementById('suggest-list')
+
+		const keyword = Rx.Observable.fromEvent(searchInput, 'input')
+		const selectItem = Rx.Observable.fromEvent(suggestList, 'click')
+
+		// 每当输入文字（加个500ms的防抖）->发送request请求，当有新的值被输入后，舍弃前者的结果，显然使用switch合适
+		keyword
+			.debounceTime(100)
+			.switchMap(e => Rx.Observable.from(getSuggestList(e.target.value)).retry(3), (e, res) => res[1]) // 失败重传3次
+			.subscribe(list => render(list))
+
+		// 点击li-item将input文字改变，使用event的matches筛选出点击的li
+		selectItem.filter(e => e.target.matches('li')).map(e => e.target.innerText).subscribe(text => {
+			searchInput.value = text
+			render() // 将清单清空
+		})
+
+		// render渲染
+		const render = (suggestArr = []) => {
+			suggestList.innerHTML = suggestArr.map(item => `<li>${item}</li>`).join('')
+		}
+
+		var clicks = Rx.Observable.fromEvent(document, 'click');
+		var result = clicks.windowCount(2, 3).map(o => o.count())
+			.mergeAll(); // 打平高阶 Observable
+		result.subscribe(x => console.log(x));
+	</script>
+</body>
+
+</html>
