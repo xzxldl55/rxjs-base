@@ -47,8 +47,29 @@ setTimeout(() => {
 }, 1000)
 -------------------**/
 
-// 使用Rxjs自带的Subject跟我们自己写的是一样的：在Rxjs中Subject对于其他Observer来说它是一个Observable（因为可以被订阅），而对于Observable来说他又是一个Observer。所以它二者兼具，且Subject会对内部的Observers清单进行组播
+/**
+ * 使用Rxjs自带的Subject跟我们自己写的是一样的：
+ *    在Rxjs中Subject对于其他Observer来说它是一个Observable（因为可以被订阅），
+ *    而对于Observable来说他又是一个Observer。
+ * 所以它二者兼具，且Subject会对内部的Observers清单进行组播
+ */
 // let subject = Rx.Subject()
 // oaInterval.subscribe(subject)
 // subject.subscribe(observerA)
 // subject.subscribe(observerB)
+// 且由于Subject的这一特性，我们甚至能够直接使用Subject.next(msg)来模拟Observable数据流，而不用去订阅一个Observable
+// 例如对于某些无法直接使用Observable的框架，我们能够使用Subject来模拟实现Observable触发事件/...
+/**
+ * class MyButton extends React.Component {
+ *    constructor (props) {
+ *        super(props)
+ *        this.state = { count: 0 }
+ *        this.subject = new Rx.Subject()
+ *        this.subject.mapTo(1).scan((origin, next) => origin + next).subscribe(x => this.setState({ count: x }))
+ *    }
+ *    render () {
+ *        // 这里由于onClick是React的事件而非原声DOM事件，所以无法使用Rx.fromEvent进行监听，所以则使用Subject来模拟Observable，onClick来触发subject的next函数以触发数据流
+ *        return <button onClick={event => this.subject.next(event)}>{this.state.count} + 1</button>
+ *    }
+ * }
+ */
