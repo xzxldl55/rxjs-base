@@ -72,7 +72,8 @@ class Solution(object):
             return s[maxStartIndex:maxLen + 1]
         # 再从3开始搜寻回文状态
         for len in list(range(sLen + 1))[3:]:
-            for 
+            for startIndex in list(range(sLen)):
+                
 
 
 # @lc code=end
