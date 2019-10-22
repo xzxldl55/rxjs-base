@@ -50,11 +50,11 @@ var replaySubject = new Rx.ReplaySubject(2);
  * AsyncSubject会在subject complete的时候送出最后一个值（送出最后一个值这点跟Behavior有点像，但是Async只会在结束后送出值）
  */
 var asyncSubject = new Rx.AsyncSubject();
-asyncSubject.subscribe(observerA);
-asyncSubject.next(1);
-asyncSubject.next(2);
-asyncSubject.next(3);
-asyncSubject.complete();
-setTimeout(function () {
-    asyncSubject.subscribe(observerB);
-}, 1000);
+// asyncSubject.subscribe(observerA)
+// asyncSubject.next(1)
+// asyncSubject.next(2)
+// asyncSubject.next(3)
+// asyncSubject.complete()
+// setTimeout(() => {
+//   asyncSubject.subscribe(observerB)
+// }, 1000)

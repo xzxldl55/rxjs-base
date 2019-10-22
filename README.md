@@ -14,6 +14,7 @@
 	(1234)|
 	```
 
-## 特性：
+## Observable特性：
 - 渐进式取值：每次都只处理一个Observable流
 - 延迟运算：订阅之后才会进行运算
+- Observer Pattern && Iterator Pattern两种模式思想的结合，具备生产者推送资料，又同时能够像一个Iterator序列一样拥有处理序列的方法（Map, filter, reduce...）
