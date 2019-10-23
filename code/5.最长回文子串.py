@@ -61,73 +61,34 @@ class Solution(object):
         stateArr = [[x * 0 for x in range(len(s))] for xx in range(len(s))]
 
         # 构建长度为1与2的回文状态
-        for i in range(sLen):
-            stateArr[i][i] = 1  # 长度为1比为回文
-            if (s[i] == s[i + 1] and i < sLen - 1):  # 防止越界
+        i = 0
+        while (i < sLen):
+            stateArr[i][i] = 1
+            if (i < sLen - 1 and s[i] == s[i + 1]):
                 stateArr[i][i + 1] = 1
-                # 初始记录最长回文子串
                 maxLen = 2
                 maxStartIndex = i
-        if (maxLen == 1):  # 没有长度为2的回文子串，那么必然也没有为3的...
-            return s[maxStartIndex:maxLen + 1]
+            i += 1
         # 再从3开始搜寻回文状态
-        for len in list(range(sLen + 1))[3:]:
-            for startIndex in list(range(sLen)):
-                
+        for length in list(range(sLen + 1))[3:]:
+            startIndex = 0
+            while (startIndex + length - 1 < sLen):
+                endIndex = startIndex + length - 1
+                if (stateArr[startIndex + 1][endIndex - 1] == 1 and s[startIndex] == s[endIndex]):
+                    stateArr[startIndex][endIndex] = 1
+                    maxStartIndex = startIndex
+                    maxLen = length
+                startIndex += 1
+        return s[maxStartIndex: maxStartIndex + maxLen]
 
 
 # @lc code=end
 res = Solution()
-print(res.longestPalindrome('1023102'))
+print(res.longestPalindrome('0110110'))
 
 
 
 '''
-解法 3：动态规划（基于中心对称扩展思想），通过
-为了改进暴力法，我们首先观察如何避免在验证回文时进行不必要的重复计算。
-考虑 ababa 这个示例。如果我们已经知道 bab 是回文，那么很明显，ababa 一定是回文，因为它的左首字母和右尾字母是相同的。(即，我的最长子串是回文，那么我如果收尾相同那么我就是回文)
-1，给出 P(i,j) 的状态定义如下：P(i,j)=1 (s[i]～s[j]是回文子串)(其他情况为0)
-2，状态转移方程为：P(i, j) = (P(i+1, j-1)  and s[i] == s[j])
-3,边界条件，我们首先初始化一字母和二字母的回文，然后找到所有三字母回文，并依此类推…那么边界条件就是，一字母回文全部初始化为1
-初始状态：
-dp[i][i]=1; //单个字符是回文串
-dp[i][i+1]=1 if s[i]=s[i+1]; //连续两个相同字符是回文串
-class Solution {
-public:
-    string longestPalindrome(string s) {
-        int len=s.size();
-        if(len==0||len==1)
-            return s;
-        int start=0;//回文串起始位置
-        int max=1;//回文串最大长度
-        vector<vector<int>>  dp(len,vector<int>(len));//定义二维动态数组
-        for(int i=0;i<len;i++)//初始化状态，边界条件是，所有单字符都是回文，以及两字符回文就是相同的两个字符
-        {
-            dp[i][i]=1; //单字符回文
-            if(i<len-1&&s[i]==s[i+1]) //i<len-1,是为了防止后面判断下标越界
-            {
-                dp[i][i+1]=1;
-                max=2;
-                start=i;
-            }
-        }
-        for(int l=3;l<=len;l++)//l表示检索的子串长度，等于3表示先检索长度为3的子串，这里用不同起始的l和i，并且同时++，构成滑动窗口
-        {
-            for(int i=0;i+l-1<len;i++)
-            {
-                int j=l+i-1;//终止字符位置
-                if(s[i]==s[j]&&dp[i+1][j-1]==1)//状态转移，dp[i+1][j-1] == 1则其最大子串为回文，那么显然如果此时其自身首位相同，比为回文
-                {
-                    dp[i][j]=1; # 再将其标记为回文，以供dp[i - 1][j + 1]判断
-                    start=i; # 标记最大回文起始位置
-                    max=l; # 标记最大回文长度，以最后返回
-                }
-             }
-        }
-        return s.substr(start,max);//获取最长回文子串
-    }
-};
-
 解法 4：中心扩展法 通过（类似于dp算法）
 回文中心的两侧互为镜像。因此，回文可以从他的中心展开，并且只有 2n-1 个这样的中心（一个元素为中心的情况有 n 个，两个元素为中心的情况有 n-1 个）
 再详细讲解就是，中心扩展是选定一个中心，然后扩展回文子串，但中心其实是有两种情况，一种是奇数回文串只有一个元素，一种是偶数回文串的中心有两个元素
