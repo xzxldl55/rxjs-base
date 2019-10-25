@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    function _new () {
+      let target = {}
+      let [constructor, ...args] = [...arguments]
+      target._proto_ = constructor.prototype
+      let result = constructor.apply(target, args)
+      if (result && typeof(result) == 'object' || typeof(result) == 'function') {
+        return result
+      } else {
+        return target
+      }
+    }
+
+    let x = _new(function (name, age) {
+      this.name = name
+      this.age = age
+      this.sayHello = function sayHello () {
+        console.log('hello!')
+      }
+    }, 'xzxldl55', 21)
+  </script>
+</body>
+</html>

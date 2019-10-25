@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>观察者模式简单实现</title>
+  <style>
+    .avatar {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body>
+  <img src="./images/a.jpg" alt="" class="avatar">
+  <img src="./images/b.jpg" alt="" class="avatar">
+  <img src="./images/c.jpg" alt="" class="avatar">
+  <img src="./images/d.jpg" alt="" class="avatar">
+  <img src="./images/e.jpg" alt="" class="avatar">
+
+  <!-- <script>
+    function Observer () {
+      if (!(this instanceof Observer)) {
+        throw new Error('请使用new关键字调用构造函数')
+      }
+      this.subscribers  =[]
+    }
+    Observer.prototype.addSubscriber = function (subscriber) {
+      if (typeof(subscriber) === 'function') {
+        this.subscribers.push(subscriber)
+      } else {
+        throw new Error('请正确传入subscriber')
+      }
+    }
+    Observer.prototype.removeSubscriber = function (subscriber) {
+      if (typeof(subscriber) === 'function') {
+        this.subscribers.splice(this.subscribers.indexOf(subscriber), 1)
+      } else {
+        throw new Error('请正确传入subscriber')
+      }
+    }
+    Observer.prototype.notify = function (message) {
+      this.subscribers.forEach(subscriber => {
+        subscriber(message)
+      })
+    }
+    let observer = new Observer()
+    const avatars = Array.from(document.getElementsByClassName('avatar'))
+    avatars.forEach((dom, index) => {
+      observer.addSubscriber(function (position) {
+        setTimeout(() => {
+          dom.style.left = position.x + 'px'
+          dom.style.top = position.y + 'px'
+        }, index * 100)
+      })
+    })
+    document.addEventListener('mousemove', function (e) {
+      console.log(e)
+      const position = {
+        x: e.clientX,
+        y: e.clientY
+      }
+      observer.notify(position)
+    })
+  </script> -->
+  <!-- <script>
+    function Observer () {
+      if (!(this instanceof Observer)) {
+        throw new Error('请使用 new 关键字创建对象')
+      }
+      this.subscribers = []
+    }
+    Observer.prototype.addSubscriber = function(subscriber) {
+      this.subscribers.push(subscriber)
+    }
+    Observer.prototype.removeSubscriber = function (subscriber) {
+      this.subscribers.splice(this.subscribers.indexOf(subscriber), 1)
+    }
+    Observer.prototype.notify = function (message) {
+      this.subscribers.forEach(subscriber => {
+        subscriber(message)
+      })
+    }
+    const observer = new Observer()
+    const avatars = Array.from(document.getElementsByClassName('avatar'))
+    avatars.forEach((dom, index) => {
+      observer.addSubscriber(function (position) {
+        setTimeout(() => {
+          dom.style.left = position.x + 'px'
+          dom.style.top = position.y + 'px'
+        }, index * 100)
+      })
+    })
+
+    document.addEventListener('mousemove', function (e) {
+      let position = {
+        x: e.clientX,
+        y: e.clientY
+      }
+      observer.notify(position)
+    })
+  </script> -->
+  <script>
+    function Observer () {
+      this.subscribers = []
+    }
+    Observer.prototype.addSubscriber  = function (subscriber) {
+      if (typeof(subscriber) !== 'function') {
+        throw new Error('你不是一个Subscriber')
+      }
+      this.subscribers.push(subscriber)
+    }
+    Observer.prototype.notify = function (message) {
+      this.subscribers.forEach(subscriber => {
+        subscriber(message)
+      })
+    }
+    const imgArr = Array.from(document.getElementsByClassName('avatar'))
+    const observer = new Observer()
+    imgArr.forEach((dom, index) => {
+      observer.addSubscriber(function (message) {
+        setTimeout(() => {
+          // console.log(message)
+          dom.style.left = message.x + 'px'
+          dom.style.top = message.y + 'px'
+        }, index * 100)
+      })
+    })
+    document.addEventListener('mousemove', function (e) {
+      // console.log(e)
+      message = {
+        x: e.clientX,
+        y: e.clientY
+      }
+      observer.notify(message)
+    })
+  </script>
+</body>
+</html>
