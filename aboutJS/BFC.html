@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        *{margin: 0;padding: 0;}
+        .div1 {
+            width: 200px;
+            height: 200px;
+            margin-top: 20px;
+            background-color: #000;
+        }
+        .div2 {
+            width: 100px;
+            height: 100px;
+            margin-top: 10px;
+            background-color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="div1">
+        <div class="div2"></div>
+        <div class="div2" style="float: left;">
+            <div class="div3" style="width: 50px; height: 50px; margin-top: 10px; background-color: pink;"></div>
+        </div>
+    </div>
+    <script src="./curry.js" defer></script>
+    <script src="./隐式类型转换.js"></script>
+</body>
+</html>
