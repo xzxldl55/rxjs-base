@@ -101,6 +101,7 @@
                     y: validValue(move.clientY - down.offsetY, window.innerHeight - 180, 0)
                 }
             })
+            .observeOn(Rx.Scheduler.animationFrame)
             .subscribe(pos => {
                 video.style.top = pos.y + 'px'
                 video.style.left = pos.x + 'px'

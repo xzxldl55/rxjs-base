@@ -1,5 +1,5 @@
 let a = {
-    [Symbol.toPromitive]: function(hint) {
+    [Symbol.toPrimitive]: function(hint) {
         let i = 1
         // 整个闭包，i不会被收回
         return function() {
