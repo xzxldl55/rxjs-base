@@ -1,6 +1,6 @@
 const Rx = require('rxjs/Rx')
 const Observable = Rx.Observable
-const { Product } = require('./SomePattern')
+const { Product } = require('./somePattern')
 /**
  * create
  * of
@@ -20,6 +20,7 @@ let oaCreate = Observable.create((observer) => {
     observer.complete(1)
 })
 
+
 // 2.of：传入简单的几个“值”，将其组成一个序列，并向下游吐出（next(v)）
 let oaOf = Observable.of(...['xzx', 'ldl', '55'])
 // oaOf.subscribe(v=>console.log(v))
@@ -38,8 +39,8 @@ let oaFromEventPattern = Observable.fromEventPattern(
     product.addListener.bind(product), // 不能直接传入，需要借托bind等调整this指向的方法
     product.removeListener.bind(product)
 )
-// oaFromEventPattern.subscribe(v => console.log(v))
-// product.notify('xzxldl --> message')
+oaFromEventPattern.subscribe(v => console.log(v))
+product.notify(product)
 
 // 6.empty,never,throwError: empty --> 空oa，会直接complete； never --> 永远不会结束，但也什么都不发生； throwError --> 直接抛出错误
 let oaEmpty = Observable.empty()
