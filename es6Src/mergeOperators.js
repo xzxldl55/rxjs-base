@@ -184,4 +184,9 @@ var oaForkJoin = forkJoin(
 /**
  * 高阶Observable：
  *    定义：即吐出的数据内容依然是Observable的Observable
+ *    - 高阶Observable产出的数据也叫“内部Observable”，因为他们一般也不展示在外。
+ *    - 高阶Observable的完结不代表其内部Observable的完结，内部Observable有着自己的生命周期。
+ * 
+ *    意义：
+ *    - 能够用Observable来管理多个Observable对象
  */   
