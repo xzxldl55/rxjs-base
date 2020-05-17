@@ -13,7 +13,16 @@
  *  异步数据流：有时间间隔的吐出数据
  *    interval：顾名思义啊（从0开始吐出整数）
  *    timer：也对应了setTimeout，参数可以是毫秒数值，也可以是个Date对象，Date对象就厉害了那就等到了那个时间就吐出
+ *    from：类数组转换为Observable
+ *    fromPromise：将Promise转化
+ *    fromEvent：将DOM事件转化
+ *    fromEventPattern：将类事件转化
+ *    ajax：ajax转化
+ *    repeatWhen：可控制重复调用时间的repeat
+ *    defer：延迟创建Observable
  */
+import {outilObserver} from './outilObserver'
+import {EventEmitter} from 'events'
 import {Observable} from 'rxjs/Observable'
 import {of} from 'rxjs/observable/of'
 import {range} from 'rxjs/observable/range'
@@ -24,17 +33,14 @@ import {
   interval,
   timer,
   from,
+  fromEvent,
+  fromEventPattern,
+  defer,
 } from 'rxjs'
-import {repeat, take} from 'rxjs/operators'
+import {repeat, take, repeatWhen, delay} from 'rxjs/operators'
 import {_throw} from 'rxjs/observable/throw'
-import { fromPromise } from 'rxjs/internal-compatibility'
+import { fromPromise, ajax } from 'rxjs/internal-compatibility'
 
-// 工具人Observer
-let outilObserver = {
-  next: v => console.log(v),
-  error: err => console.error(err),
-  complete: () => console.log('Over!')
-}
 
 // 1、creaet 本身就在Observable的类定义内，所以无需额外引入
 let oaCreate$ = Observable.create(observer => {
@@ -93,7 +99,7 @@ let oaThrow$ = _throw(new Error('哦错误哦！'))
 
 // 7、interval && timer
 /**
- * interval就不谈了
+ * interval就不谈，即在订阅后的 n毫秒后开始吐出数据，每隔n 毫秒吐一个
  * timer可以选择接收第二个参数，代表了持续吐出时间的间隔，如下第一个参数代表开始吐出第一个参数的时间，第二个代表后面的数据吐出的间隔
  * ----0--1--2--3--...-->
  */
@@ -134,4 +140,72 @@ let oaFromPromise$ = fromPromise(
 )
 // oaFromPromise$.subscribe(outilObserver)
 
-// 10、fromEvent：
+// 10、fromEvent：DOM与Rx的桥梁，将DOM事件转化为Observable流（DOM， 事件名） || 除此外，其他Event事件也可适用，如NodeJS的EventEmitter
+/**
+ * 假设有如下DOM
+ * <div>
+ *    <button id='btn'>click me</button>
+ *    <span id='text'>0</span>
+ * </div>
+ * 则可做如下操作
+ * 当触发事件时便会向下游吐出数据，从而触发Observer的操作
+ */
+// let oaFromEvent$ = fromEvent(document.getElementById('btn', 'click'))
+// oaFromEvent$.subscribe(() => {
+//   document.getElementById('text').innerHTML += 1
+// })
+
+// 11、fromEventPattern：某些情况下事件源可能并没有DOM事件那么相像，则需要灵活度更高的操作符了。
+/**
+ * 接收两个参数，分别是Observable订阅时的操作，与其退订时的操作
+ * fromEventPattern提供的就是一种模式，而不管数据源如何。
+ * 当subscribe调用时就会去调用其传入的第一个参数'addHandler'
+ * 当unsubscribe调用则调用其第二个参数'removeHandler'
+ */
+let emitter = new EventEmitter()
+const addHandler = (handler) => { // 订阅操作
+  emitter.addListener('msg', handler)
+}
+const removeHandler = (handler) => {
+  emitter.removeListener('msg', handler)
+}
+let oaFromEventPattern$ = fromEventPattern(addHandler, removeHandler)
+// const registeroaFromEventPattern$ = oaFromEventPattern$.subscribe(outilObserver)
+// emitter.emit('msg', 'hello') // 触发msg事件传入数据hello
+// emitter.emit('msg', 'world')
+// registeroaFromEventPattern$.unsubscribe() // 退订
+// emitter.emit('msg', '退订了你就接收不到了')
+
+// 12、ajax：即将Ajax请求转变为Observable || tip: 一般配合组合操作符很猛
+let oaAjax$ = ajax('http://localhost:8888/test', {resopnseType: 'json'})
+// oaAjax$.subscribe(outilObserver)
+
+// 13、repeatWhen：repeat只能重复订阅上游Observable但无法控制订阅的时间，repeatWhen就出现了。
+/**
+ * 其接受一个函数参数，在该函数参数内返回一个Observable来控制合适去重复订阅上游数据
+ * 该函数参数也可以接收一个参数，我们称作“notification$”该参数特点是，当repeatWhen上游数据完结的时候会吐出一个数据，所以我们能够用这个参数来控制上游是异步数据流的情况
+ */
+let notifier = (notification$) => {
+  // return interval(1000)
+  return notification$.pipe(delay(2000)) // 异步数据流使用notification来控制，保证在上游结束后再调用
+}
+let oaRepeatWhen$ = oaOf$.pipe(repeatWhen(notifier))
+// oaRepeatWhen$.subscribe(outilObserver)
+
+// 14、defer：有这种情况，一方面我们希望能预先定义好一个Observable，这样方便我们订阅，但同时我们又不希望它过早存在从而一直占用着资源。这时出现了defer：
+/**
+ * defer接收一个函数作为参数，该函数需要返回一个Observable，即我们上面说的想预先定义但又不想过早创建占用内存的Observable | 同时其也支持返回Promise（因为可以有fromPromise，rxjs帮你做转换了）
+ * 只有当defer的Observable被订阅了，其参数内返回的Observable才会被创建出来。
+ * 场景：就比如，我们再进行Ajax请求时，我们不想再服务刚启动就将这个Ajax请求发出去，就可以使用defer将其包起来 ->
+ * ```
+ *  const observableFactory = () => ajax(ajaxUrl)
+ *  const source$ = defer(observableFactory)
+ * ```
+ */
+const observableFactory = () => of(1,2,3)
+let oaDefer$ = defer(observableFactory)
+// oaDefer$.subscribe(outilObserver)
+
+
+
+export {oaOf$, oaInterval$} // 导出去一下给别的文件用
