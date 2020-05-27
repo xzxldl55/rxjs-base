@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "m": "babel-node .\\es6Src\\mergeOperators.js",
+    "f": "babel-node .\\es6Src\\filterOperators.js"
+  },
   "dependencies": {
     "babel-core": "^6.26.3",
     "babel-preset-env": "^1.7.0",

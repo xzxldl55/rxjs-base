@@ -32,4 +32,42 @@ const binarySearch = function (arr, key) {
     }
     return -1
 }
-console.log(binarySearch([1,2,3,4,5], 4))
+
+// 
+var quickSortDiy = function (arr) {
+    var length = arr.length
+    var midIndex = Math.floor((length - 1) / 2)
+    if (midIndex < 0)
+        return arr
+    var midValue = arr.splice(midIndex, 1)
+
+    var leftArea = [],
+        rightArea = []
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i] > midValue) {
+            rightArea.push(arr[i])
+        } else {
+            leftArea.push(arr[i])
+        }
+    }
+    return quickSortDiy(leftArea).concat(midValue, quickSortDiy(rightArea))
+}
+
+// O(Math.floor(n/2))
+var binarySearchDiy = function (arr, target) {
+    var length = arr.length
+    var low = 0
+    var high = length - 1
+    var mid
+
+    while(low <= high) {
+        mid = Math.floor((high + low) / 2)
+        if (arr[mid] === target)
+            return mid
+        else if (arr[mid] < target)
+            low = mid + 1
+        else
+            high = mid - 1
+    }
+    return -1
+}
